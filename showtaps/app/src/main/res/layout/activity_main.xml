@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="show.taps.MainActivity">
+    <LinearLayout
+        android:id="@+id/tip_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center"
+        android:orientation="vertical">
+        <include
+            android:id="@+id/layout_1"
+            layout="@layout/activity_main_card_1" />
+
+        <include
+            android:id="@+id/layout_2"
+            layout="@layout/activity_main_card_2" />
+
+        <include
+            android:id="@+id/layout_3"
+            layout="@layout/activity_main_card_3" />
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="30dp"
+    android:layout_height="30dp"
+    android:layout_marginHorizontal="4dp"
+    android:background="@drawable/bg_view_color_item"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.constraintlayout.utils.widget.ImageFilterView
+        android:id="@+id/img_color"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="#ff0000"
+        app:round="12dp"
+        android:layout_gravity="center"
+        android:background="@color/black"
+        />
+</FrameLayout>

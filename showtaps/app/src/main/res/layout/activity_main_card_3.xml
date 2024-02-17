@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="20dp"
+    android:layout_marginHorizontal="12dp"
+    app:contentPadding="16dp"
+    style="@style/Widget.Material3.CardView.Elevated">
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="6dp"
+            android:layout_marginBottom="8dp"
+            android:textSize="15sp"
+            android:lineSpacingExtra="3dp"
+            android:textIsSelectable="true"
+            android:text="@string/card_3_info"
+            />
+
+        <TextView
+            android:id="@+id/link_play"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="12dp"
+            android:textSize="15sp"
+            android:lineSpacingExtra="3dp"
+            android:text="@string/card_3_play_link_title"
+            android:textColor="?colorPrimary"
+            android:background="?android:selectableItemBackground"
+            />
+
+        <TextView
+            android:id="@+id/link_tube"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="12dp"
+            android:textSize="15sp"
+            android:lineSpacingExtra="3dp"
+            android:text="Youtube @k3x1n-dev"
+            android:textColor="?colorPrimary"
+            android:background="?android:selectableItemBackground"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/link_github"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="12dp"
+            android:textSize="15sp"
+            android:lineSpacingExtra="3dp"
+            android:text="Github https://github.com/k3x1n/Android-Show-Taps"
+            android:textColor="?colorPrimary"
+            android:background="?android:selectableItemBackground"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="12dp"
+            android:gravity="center"
+            tools:text="version 2.0"
+            />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</com.google.android.material.card.MaterialCardView>
