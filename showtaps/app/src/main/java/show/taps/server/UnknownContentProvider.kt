@@ -1,4 +1,4 @@
-package show.taps
+package show.taps.server
 
 import android.content.AttributionSource
 import android.content.ContentProviderOperation

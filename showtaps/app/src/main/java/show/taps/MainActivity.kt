@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +23,8 @@ import rikka.shizuku.Shizuku
 import show.taps.databinding.ActivityMainBinding
 import show.taps.databinding.ActivityMainCard1Binding
 import show.taps.databinding.ViewColorItemBinding
+import show.taps.server.GlobalSettings
+import show.taps.server.KernelService
 import java.util.Arrays
 import kotlin.system.exitProcess
 
@@ -130,6 +133,12 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
         stop = true
     }
 
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        val devName = ev?.device?.name
+        putLastDevName(devName)
+        return super.dispatchTouchEvent(ev)
+    }
+
     private fun ActivityMainBinding.initLink(){
         layout3.linkPlay.setOnClickListener {
             openGooglePlayStore()
@@ -150,7 +159,6 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
                 getString(R.string.toast_link_copied), Toast.LENGTH_SHORT).show()
             true
         }
-
 
         layout3.linkGithub.setOnClickListener {
             openWebBrowser("https://github.com/k3x1n/Android-Show-Taps")
@@ -366,6 +374,16 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
                             Toast.LENGTH_SHORT).show()
                         binding.layout1.btStart.text = getString(R.string.bt_device_not_support)
                         return@setOnClickListener
+                    }
+
+                    val devName = getLastDevName()
+                    Log.d(TAG, "onCreate: devName = $devName")
+                    if(devName != null){
+                        inputPath.forEach{
+                            if(it.name == devName){
+                                it.weight += 100000
+                            }
+                        }
                     }
 
                     var path = inputPath[0].path

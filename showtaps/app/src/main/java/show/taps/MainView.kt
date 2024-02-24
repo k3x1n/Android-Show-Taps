@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.os.SystemClock
 import android.util.Log
 import android.view.Display
 import android.view.MotionEvent
@@ -14,6 +15,7 @@ import android.view.Surface.ROTATION_90
 import android.view.Surface.Rotation
 import android.view.View
 import androidx.core.hardware.display.DisplayManagerCompat
+import show.taps.server.GlobalSettings
 import java.lang.RuntimeException
 
 private const val TAG = "MainView"
@@ -24,13 +26,20 @@ class MainView(context: Context) : View(context){
     data class Point(var pointerId: Int, var time: Long, var x: Float, var y: Float, var deviceId: Int)
 
     // 用户绘制按下的状态, 下标是id
-    data class PressedPoint(var show: Boolean, var x: Float, var y: Float, var deviceId: Int, var touchRadius: Float)
+    data class PressedPoint(
+        var pressing: Boolean,
+        var x: Float,
+        var y: Float,
+        var deviceId: Int,
+        var touchRadius: Float,
+        var releaseTime: Long
+    )
 
     // 用于连线, 下标是id (0、1、2、3、4···)：
     data class LastPoint(var head: Boolean, var x: Float, var y: Float)
 
     /*private */val list = Array(2048) { Point(0, 0L, -9999f, -9999f, 0) }
-    /*private */val listPressedPoint = Array(10) { PressedPoint(false, -9999f, -9999f, 0, 0f) } // pointerID : index
+    /*private */val listPressedPoint = Array(10) { PressedPoint(false, -9999f, -9999f, 0, 0f, 0) } // pointerID : index
     /*private */val lastPoint = Array(10) { LastPoint(false, 0f, 0f) } // pointerID : index
 
     @Volatile
@@ -132,8 +141,8 @@ class MainView(context: Context) : View(context){
         var requirePostInvalidate = false
 
         val dp = resources.displayMetrics.density
+        val uptimeMillis = SystemClock.uptimeMillis()
 
-        val dismissTime = GlobalSettings.dismissTime
         val r = dp * GlobalSettings.touchPointSize / 2
 
         val colors = GlobalSettings.colorArray
@@ -145,17 +154,15 @@ class MainView(context: Context) : View(context){
                 lastPointItem.head = true
             }
 
+            val pathFadeTime = GlobalSettings.pathFadeTime
             for(j in list.indices){
                 val index = (j + i + 1) % list.size
                 val item = list[index]
 
-                val dt = System.currentTimeMillis() - item.time
-                if(dt > dismissTime || dismissTime == 0){
+                val dt = uptimeMillis - item.time
+                if(dt > pathFadeTime || pathFadeTime == 0){
                     continue
                 }
-
-                circlePaint.alpha = ((dismissTime - dt) * 255 / dismissTime).toInt()
-                circlePaint.color = colors[item.pointerId % colors.size]
 
                 requirePostInvalidate = true
 
@@ -165,7 +172,7 @@ class MainView(context: Context) : View(context){
                     continue
                 }
 
-                if(dismissTime > 0){
+                if(pathFadeTime > 0){
                     canvas.drawLine(item)
                 }
 
@@ -173,12 +180,21 @@ class MainView(context: Context) : View(context){
 
             circlePaint.strokeWidth = dp * GlobalSettings.strokeCircle
 
+            val circleFadeTime = GlobalSettings.circleFadeTime
             for(j in listPressedPoint.indices){
                 val pressed = listPressedPoint[j]
-                if(!pressed.show){
-                    continue
+                var alpha = 255
+                if(!pressed.pressing){
+                    val t = uptimeMillis - pressed.releaseTime
+                    if(t > circleFadeTime){
+                        continue
+                    }
+                    alpha = 255 - (t * 255 / circleFadeTime).toInt()
+                    requirePostInvalidate = true
                 }
+
                 circlePaint.color = colors[j % colors.size]
+                circlePaint.alpha = alpha
 
                 if(r != 0f){
                     calculate(pressed.x, pressed.y)
@@ -191,7 +207,7 @@ class MainView(context: Context) : View(context){
         }
 
         if(requirePostInvalidate){
-            postInvalidateDelayed(16)
+            postInvalidateDelayed(8)
         }
 
     }

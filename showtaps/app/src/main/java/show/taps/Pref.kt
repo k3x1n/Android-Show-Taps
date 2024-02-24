@@ -1,6 +1,7 @@
 package show.taps
 
 import android.content.Context
+import show.taps.server.GlobalSettings
 
 const val keySize = "PREF_KEY_TOUCH_POINT_SIZE"
 
@@ -14,6 +15,8 @@ const val keyAlpha = "PREF_KEY_COLOR_ALPHA"
 
 const val keyColorPrefix = "PREF_KEY_COLOR_"
 
+const val touchEventDevName = "TOUCH_EVENT_DEV_NAME"
+
 fun MainActivity.pref() = getSharedPreferences("Settings", Context.MODE_PRIVATE)
 
 fun MainActivity.getTouchPointSize() = pref().getInt(keySize, 80)
@@ -25,6 +28,12 @@ fun MainActivity.getStrokeWidthCircle() = pref().getInt(keyStrokeCircle, 5)
 fun MainActivity.getStrokeWidthLine() = pref().getInt(keyStrokeLine, 5)
 
 fun MainActivity.getAlpha() = pref().getInt(keyAlpha, 100)
+
+fun MainActivity.getLastDevName() = pref().getString(touchEventDevName, null)
+
+fun MainActivity.putLastDevName(value: String?) {
+    pref().edit().putString(touchEventDevName, value).apply()
+}
 
 /** 长度必须是 [GlobalSettings.COLOR_ARRAY_LENGTH] */
 fun MainActivity.getColorList(): IntArray {

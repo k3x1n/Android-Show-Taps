@@ -1,4 +1,4 @@
-package show.taps
+package show.taps.server
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,6 +8,10 @@ import android.os.Process
 import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
+import show.taps.BuildConfig
+import show.taps.DevInfo
+import show.taps.KernelInterface
+import show.taps.MainView
 import java.io.File
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
@@ -152,7 +156,7 @@ class KernelService(context: Context) : KernelInterface.Stub() {
             GlobalSettings.colorArray[i] = colorArray[i]
         }
         GlobalSettings.touchPointSize = touchPointSize
-        GlobalSettings.dismissTime = dismissTime
+        GlobalSettings.pathFadeTime = dismissTime
         GlobalSettings.strokeCircle = circleStroke
         GlobalSettings.strokeLine = lineStroke
         handler.post{
@@ -181,7 +185,7 @@ class KernelService(context: Context) : KernelInterface.Stub() {
                             circleStroke: Int, lineStroke: Int, colorAplha: Int) {
         lastActive = SystemClock.uptimeMillis()
         GlobalSettings.touchPointSize = touchPointSize
-        GlobalSettings.dismissTime = dismissTime
+        GlobalSettings.pathFadeTime = dismissTime
         GlobalSettings.strokeCircle = circleStroke
         GlobalSettings.strokeLine = lineStroke
         handler.post{

@@ -1,4 +1,4 @@
-package show.taps
+package show.taps.server
 
 object GlobalSettings {
 
@@ -6,7 +6,9 @@ object GlobalSettings {
 
     var touchPointSize = 80 /* dp */
 
-    var dismissTime = 200 /* ms */
+    var pathFadeTime = 200 /* ms */
+
+    const val circleFadeTime = 150 /* ms */
 
     var strokeCircle = 5
 

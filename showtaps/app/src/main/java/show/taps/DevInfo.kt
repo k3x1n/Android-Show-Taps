@@ -12,5 +12,5 @@ data class DevInfo(
     val width: Int,
     val height: Int,
     val type: Int,
-    val weight: Int,
+    var weight: Int,
 ) : Parcelable

@@ -1,4 +1,4 @@
-package show.taps
+package show.taps.server
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -16,7 +16,7 @@ object FloatManager {
 
     @SuppressLint("WrongConstant")
     fun init(context: Context, view: View){
-        this.view = view
+        FloatManager.view = view
 
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 

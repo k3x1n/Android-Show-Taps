@@ -1,7 +1,10 @@
-package show.taps
+package show.taps.server
 
+import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.Keep
+import show.taps.DevInfo
+import show.taps.MainView
 
 private const val TAG = "NativeLib"
 
@@ -29,8 +32,12 @@ object NativeLib {
     fun a(slot: Int, down: Boolean){
         // Log.d(TAG, "a() called with: slot = $slot, down = $down")
         val mainView = FloatManager.view as MainView
-        mainView.listPressedPoint[slot].show = down
+        if(mainView.listPressedPoint[slot].pressing == down){
+            return
+        }
+        mainView.listPressedPoint[slot].pressing = down
         if(!down){
+            mainView.listPressedPoint[slot].releaseTime = SystemClock.uptimeMillis()
             mainView.list[mainView.i].x = -10000f
         }
     }
@@ -46,7 +53,7 @@ object NativeLib {
         mainView.list[i].x = x
         mainView.list[i].y = y
         mainView.list[i].pointerId = slot
-        mainView.list[i].time = System.currentTimeMillis()
+        mainView.list[i].time = SystemClock.uptimeMillis()
 
         mainView.listPressedPoint[slot].x = mainView.list[i].x
         mainView.listPressedPoint[slot].y = mainView.list[i].y

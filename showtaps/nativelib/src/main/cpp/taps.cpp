@@ -173,7 +173,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void*) {
     JNIEnv *env;
     vm->GetEnv((void **) (&env), JNI_VERSION_1_6);
 
-    auto clazz = env->FindClass("show/taps/NativeLib");
+    auto clazz = env->FindClass("show/taps/server/NativeLib");
     methodA = env->GetStaticMethodID(clazz, "a", "(IZ)V");
     methodB = env->GetStaticMethodID(clazz, "b", "(IFF)V");
     methodC = env->GetStaticMethodID(clazz, "c", "()V");
