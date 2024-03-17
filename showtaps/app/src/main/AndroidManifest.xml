@@ -23,6 +23,7 @@
         android:roundIcon="@mipmap/ic_launcher2_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ShowTaps"
+        android:name=".App"
         tools:targetApi="31">
         <activity
             android:name="show.taps.MainActivity"

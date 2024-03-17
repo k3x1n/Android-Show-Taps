@@ -1,12 +1,9 @@
 package show.taps
 
-import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.IBinder
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -18,13 +15,13 @@ import com.skydoves.colorpickerview.ColorPickerDialog
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
 import rikka.shizuku.Shizuku
 import show.taps.databinding.ActivityMainBinding
 import show.taps.databinding.ActivityMainCard1Binding
 import show.taps.databinding.ViewColorItemBinding
 import show.taps.server.GlobalSettings
-import show.taps.server.KernelService
 import java.util.Arrays
 import kotlin.system.exitProcess
 
@@ -41,8 +38,6 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
 
     private lateinit var binding: ActivityMainBinding
 
-    private var mKernelInterface : KernelInterface? = null
-
     private fun ActivityMainBinding.initPrefPanel(){
 
         fun setTouchPointSize(i : Int) = pref().edit().putInt(keySize, i).apply()
@@ -57,7 +52,7 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
 
         fun updateRemoteInfo(){
             try{
-                val kernelInterface = mKernelInterface
+                val kernelInterface = App.iKernel.value
                 if(kernelInterface?.asBinder()?.isBinderAlive == true){
                     kernelInterface.updateInfo(
                         getTouchPointSize(), getTouchPathDisappearanceTime(),
@@ -184,7 +179,7 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
 
         fun updateRemoteColorInfo(){
             try{
-                val kernelInterface = mKernelInterface
+                val kernelInterface = App.iKernel.value
                 if(kernelInterface?.asBinder()?.isBinderAlive == true){
                     kernelInterface.updateColors(colorList)
                 }
@@ -243,12 +238,12 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
             MaterialAlertDialogBuilder(this@MainActivity)
                 .setMessage(getString(R.string.shizuku_version_low))
                 .setCancelable(false)
-                .setPositiveButton("Go"){dialog, _->
+                .setPositiveButton("Go"){_, _->
                     openGooglePlayStore(PKG_SHIZUKU)
                     finishAndRemoveTask()
                     exitProcess(0)
                 }
-                .setNegativeButton("Exit"){dialog, _->
+                .setNegativeButton("Exit"){_, _->
                     finishAndRemoveTask()
                     exitProcess(0)
                 }
@@ -284,9 +279,9 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
             btStep1.visibility = View.GONE
             tvStartTip.visibility = View.VISIBLE
             btStart.visibility = View.VISIBLE
-            if(checkShizukuVersion() && mKernelInterface?.asBinder()?.isBinderAlive != true){
+            if(checkShizukuVersion() && App.iKernel.value?.asBinder()?.isBinderAlive != true){
                 if(Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED){
-                    connectServer()
+                    App.connectServer()
                 }else{
                     binding.layout1.btStart.text = getString(R.string.bt_request_shizuku_permission)
                 }
@@ -312,6 +307,26 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
 
         binding.initColor()
 
+        lifecycleScope.launchWhenStarted {
+            App.bindServiceState.collectLatest {
+                Log.d(TAG, "onCreate: App.connectState.collectLatest: $it")
+                if(it == BindServiceState.Connecting){
+                    binding.layout1.btStart.isEnabled = false
+                    binding.layout1.btStart.text = getString(R.string.bt_start_service)
+                }else if(it == BindServiceState.Fail){
+                    binding.layout1.btStart.isEnabled = true
+                    binding.layout1.btStart.text = getString(R.string.bt_start_fail_retry)
+                }else if(it == BindServiceState.Success){
+                    binding.layout1.btStart.isEnabled = true
+                    if (App.iKernel.value!!.isRunning) {
+                        binding.layout1.btStart.text = getString(R.string.bt_stop)
+                    }else{
+                        binding.layout1.btStart.text = getString(R.string.bt_start)
+                    }
+                }
+            }
+
+        }
 
         lifecycleScope.launchWhenStarted {
             var lastPingResult = false
@@ -348,10 +363,11 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
                 return@setOnClickListener
             }
 
-            val kernelInterface = mKernelInterface
+            val kernelInterface = App.iKernel.value
             if(kernelInterface?.asBinder()?.isBinderAlive == true){
                 if(kernelInterface.isRunning){
                     kernelInterface.stop()
+                    App.stateChangeFlow.tryEmit(0)
                     binding.layout1.btStart.text = getString(R.string.bt_start)
 
                 }else{
@@ -401,9 +417,10 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
                         Toast.makeText(this@MainActivity,
                             getString(R.string.toast_launch_fail),
                             Toast.LENGTH_SHORT).show()
-                        binding.layout1.btStart.isEnabled = true
+                    }else{
+                        binding.layout1.btStart.text = getString(R.string.bt_stop)
                     }
-                    binding.layout1.btStart.text = getString(R.string.bt_stop)
+                    App.stateChangeFlow.tryEmit(0)
 
                 }
 
@@ -411,7 +428,7 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
             }
 
             if(Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED){
-                connectServer()
+                App.connectServer()
             }else if (Shizuku.shouldShowRequestPermissionRationale()) {
                 // Users choose "Deny and don't ask again"
                 tipUserGoGrantPermission()
@@ -420,53 +437,6 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
             }
         }
 
-    }
-
-    private val serviceArgs by lazy {
-        val componentName = ComponentName(packageName, KernelService::class.java.name)
-        Shizuku.UserServiceArgs(componentName).also {serviceArgs->
-            serviceArgs.processNameSuffix("k3x1n")
-            serviceArgs.debuggable(true)
-            serviceArgs.version(BuildConfig.VERSION_CODE)
-        }
-    }
-
-    private fun connectServer(){
-        binding.layout1.btStart.isEnabled = false
-        binding.layout1.btStart.text = getString(R.string.bt_start_service)
-        Shizuku.bindUserService(serviceArgs, object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                if (service == null) {
-                    mKernelInterface = null
-                    binding.layout1.btStart.isEnabled = true
-                    binding.layout1.btStart.text = getString(R.string.bt_retry_connect_server)
-                    Log.e(TAG, "onServiceConnected: service == null.")
-                    return
-                }
-
-                val kernelInterface = KernelInterface.Stub.asInterface(service)
-                mKernelInterface = kernelInterface
-
-                binding.layout1.btStart.isEnabled = true
-                if (kernelInterface.isRunning) {
-                    binding.layout1.btStart.text = getString(R.string.bt_stop)
-                }else{
-                    binding.layout1.btStart.text = getString(R.string.bt_start)
-                }
-
-                Log.d(TAG, "onServiceConnected: ")
-
-            }
-
-            override fun onServiceDisconnected(name: ComponentName?) {
-                Log.e(TAG, "onServiceDisconnected: $name")
-                mKernelInterface = null
-                binding.layout1.btStart.isEnabled = true
-                binding.layout1.btStart.text = getString(R.string.bt_start_fail_retry)
-
-            }
-
-        })
 
     }
 
@@ -479,7 +449,7 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
         val granted = grantResult == PackageManager.PERMISSION_GRANTED
         Log.d(TAG, "onRequestPermissionResult: $granted")
         if(granted){
-            connectServer()
+            App.connectServer()
         }
     }
 
