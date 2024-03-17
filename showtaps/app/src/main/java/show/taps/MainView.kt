@@ -88,7 +88,7 @@ class MainView(context: Context) : View(context){
     @Rotation
     var orientation = ROTATION_0
 
-    var posRes = FloatArray(2)
+    private var posRes = FloatArray(2)
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -173,6 +173,7 @@ class MainView(context: Context) : View(context){
                 }
 
                 if(pathFadeTime > 0){
+                    circlePaint.color = colors[item.pointerId % colors.size]
                     canvas.drawLine(item)
                 }
 
@@ -207,7 +208,7 @@ class MainView(context: Context) : View(context){
         }
 
         if(requirePostInvalidate){
-            postInvalidateDelayed(8)
+            postInvalidate()
         }
 
     }
