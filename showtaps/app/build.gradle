@@ -13,8 +13,8 @@ android {
         applicationId "show.taps"
         minSdk 29
         targetSdk 33
-        versionCode 6
-        versionName "3.1"
+        versionCode 7
+        versionName "3.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

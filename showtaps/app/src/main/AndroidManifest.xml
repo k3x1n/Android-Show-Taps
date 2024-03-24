@@ -45,7 +45,7 @@
 
         <service
             android:name=".TileService"
-            android:enabled="false"
+            android:enabled="true"
             android:exported="true"
             android:icon="@drawable/tile"
             android:label="@string/app_name"

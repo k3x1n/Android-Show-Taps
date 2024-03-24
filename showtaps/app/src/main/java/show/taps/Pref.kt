@@ -17,26 +17,26 @@ const val keyColorPrefix = "PREF_KEY_COLOR_"
 
 const val touchEventDevName = "TOUCH_EVENT_DEV_NAME"
 
-fun MainActivity.pref() = getSharedPreferences("Settings", Context.MODE_PRIVATE)
+fun pref() = App.instance.getSharedPreferences("Settings", Context.MODE_PRIVATE)!!
 
-fun MainActivity.getTouchPointSize() = pref().getInt(keySize, 80)
+fun getTouchPointSize() = pref().getInt(keySize, 80)
 
-fun MainActivity.getTouchPathDisappearanceTime() = pref().getInt(keyTime, 200)
+fun getTouchPathDisappearanceTime() = pref().getInt(keyTime, 200)
 
-fun MainActivity.getStrokeWidthCircle() = pref().getInt(keyStrokeCircle, 5)
+fun getStrokeWidthCircle() = pref().getInt(keyStrokeCircle, 5)
 
-fun MainActivity.getStrokeWidthLine() = pref().getInt(keyStrokeLine, 5)
+fun getStrokeWidthLine() = pref().getInt(keyStrokeLine, 5)
 
-fun MainActivity.getAlpha() = pref().getInt(keyAlpha, 100)
+fun getAlpha() = pref().getInt(keyAlpha, 100)
 
-fun MainActivity.getLastDevName() = pref().getString(touchEventDevName, null)
+fun getLastDevName(): String? = pref().getString(touchEventDevName, null)
 
-fun MainActivity.putLastDevName(value: String?) {
+fun putLastDevName(value: String?) {
     pref().edit().putString(touchEventDevName, value).apply()
 }
 
 /** 长度必须是 [GlobalSettings.COLOR_ARRAY_LENGTH] */
-fun MainActivity.getColorList(): IntArray {
+fun getColorList(): IntArray {
     val pref = pref()
     val res = IntArray(GlobalSettings.COLOR_ARRAY_LENGTH)
     for(i in 0 until GlobalSettings.COLOR_ARRAY_LENGTH){

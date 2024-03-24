@@ -143,14 +143,34 @@ class KernelService(context: Context) : KernelInterface.Stub() {
         }
     }
 
-    override fun getInputPath(): Array<DevInfo> {
+    private fun getInputPath(): Array<DevInfo> {
         lastActive = SystemClock.uptimeMillis()
         return NativeLib.getInputPath().toTypedArray()
     }
 
     @Synchronized
-    override fun start(dev: String, colorArray: IntArray, touchPointSize: Int, dismissTime: Int,
+    override fun start(dev: String?, colorArray: IntArray, touchPointSize: Int, dismissTime: Int,
                        circleStroke: Int, lineStroke: Int, colorAplha: Int): Boolean {
+        val inputPath = getInputPath()
+        if(inputPath.isEmpty()) {
+            Log.e(TAG, "start: inputPath isEmpty.")
+            return false
+        }
+        if(dev != null){
+            inputPath.forEach{
+                if(it.name == dev) {
+                    it.weight += 100000
+                }
+            }
+        }
+        var path = inputPath[0].path
+        var weight = inputPath[0].weight
+        inputPath.forEach {
+            if(it.weight > weight){
+                weight = it.weight
+                path = it.path
+            }
+        }
         lastActive = SystemClock.uptimeMillis()
         for(i in 0 until GlobalSettings.COLOR_ARRAY_LENGTH){
             GlobalSettings.colorArray[i] = colorArray[i]
@@ -162,7 +182,7 @@ class KernelService(context: Context) : KernelInterface.Stub() {
         handler.post{
             FloatManager.view.alpha = colorAplha / 100f
         }
-        if(NativeLib.start(dev)){
+        if(NativeLib.start(path)){
             isRunning = true
             return true
         }

@@ -1,5 +1,6 @@
 package show.taps
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ComponentName
 import android.content.Context
@@ -10,6 +11,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import rikka.shizuku.Shizuku
+import show.taps.server.GlobalSettings
 import show.taps.server.KernelService
 
 class App: Application() {
@@ -17,6 +19,9 @@ class App: Application() {
     companion object{
 
         private const val TAG = "App"
+
+        @SuppressLint("StaticFieldLeak")
+        lateinit var instance: App
 
         val iKernel = MutableStateFlow<KernelInterface?>(null)
 
@@ -27,7 +32,17 @@ class App: Application() {
 
         val stateChangeFlow = MutableSharedFlow<Int>()
 
-        private lateinit var serviceArgs : Shizuku.UserServiceArgs
+        /** 长度必须是 [GlobalSettings.COLOR_ARRAY_LENGTH] */
+        lateinit var colorList : IntArray
+
+        private val serviceArgs by lazy {
+            val componentName = ComponentName(instance.packageName, KernelService::class.java.name)
+            Shizuku.UserServiceArgs(componentName).also { serviceArgs->
+                serviceArgs.processNameSuffix("k3x1n")
+                serviceArgs.debuggable(true)
+                serviceArgs.version(BuildConfig.VERSION_CODE)
+            }
+        }
 
         fun connectServer(){
             bindServiceState.tryEmit(BindServiceState.Connecting)
@@ -56,13 +71,8 @@ class App: Application() {
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
-
-        val componentName = ComponentName(packageName, KernelService::class.java.name)
-        serviceArgs = Shizuku.UserServiceArgs(componentName).also { serviceArgs->
-            serviceArgs.processNameSuffix("k3x1n")
-            serviceArgs.debuggable(true)
-            serviceArgs.version(BuildConfig.VERSION_CODE)
-        }
+        instance = this
+        colorList = getColorList()
 
     }
 

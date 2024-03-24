@@ -3,9 +3,7 @@ package show.taps;
 import show.taps.DevInfo;
 
 interface KernelInterface {
-    DevInfo[] getInputPath();
-
-    boolean start(String dev, in int[] colors,
+    boolean start(@nullable String dev, in int[] colors,
             int touchPointSize, int dismissTime, int circleStroke, int lineStroke, int colorAlpha);
 
     boolean isRunning();

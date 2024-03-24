@@ -22,7 +22,6 @@ import show.taps.databinding.ActivityMainBinding
 import show.taps.databinding.ActivityMainCard1Binding
 import show.taps.databinding.ViewColorItemBinding
 import show.taps.server.GlobalSettings
-import java.util.Arrays
 import kotlin.system.exitProcess
 
 private const val TAG = "MainActivity"
@@ -170,9 +169,6 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
 
     }
 
-    /** 长度必须是 [GlobalSettings.COLOR_ARRAY_LENGTH] */
-    private lateinit var colorList : IntArray
-
     private fun ActivityMainBinding.initColor(){
 
         fun saveColor(i : Int, color: Int) = pref().edit().putInt("$keyColorPrefix$i", color).apply()
@@ -181,23 +177,22 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
             try{
                 val kernelInterface = App.iKernel.value
                 if(kernelInterface?.asBinder()?.isBinderAlive == true){
-                    kernelInterface.updateColors(colorList)
+                    kernelInterface.updateColors(App.colorList)
                 }
             }catch (e: Exception){
                 Log.e(TAG, "updateRemoteColorInfo: ", e)
             }
         }
 
-        colorList = getColorList()
         for(i in 0 until GlobalSettings.COLOR_ARRAY_LENGTH){
             val binding = ViewColorItemBinding.inflate(layoutInflater, layout2.colorList, false)
-            binding.imgColor.setImageDrawable(ColorDrawable(colorList[i]))
+            binding.imgColor.setImageDrawable(ColorDrawable(App.colorList[i]))
             binding.root.setOnClickListener {
                 ColorPickerDialog.Builder(this@MainActivity)
                     .setPositiveButton("OK", ColorEnvelopeListener { envelope, fromUser ->
                         if (fromUser) {
-                            colorList[i] = envelope.color
-                            saveColor(i, colorList[i])
+                            App.colorList[i] = envelope.color
+                            saveColor(i, App.colorList[i])
                             updateRemoteColorInfo()
                             binding.imgColor.setImageDrawable(ColorDrawable(envelope.color))
                         }
@@ -210,7 +205,7 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
                     .also {
                         it.colorPickerView.post {
                             kotlin.runCatching {
-                                it.colorPickerView.selectByHsvColor(colorList[i])
+                                it.colorPickerView.selectByHsvColor(App.colorList[i])
                             }
                         }
                     }
@@ -308,6 +303,21 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
         binding.initColor()
 
         lifecycleScope.launchWhenStarted {
+            fun updateButtonText(kernelInterface: KernelInterface?){
+                try{
+                    if (kernelInterface!!.isRunning) {
+                        binding.layout1.btStart.text = getString(R.string.bt_stop)
+                    }else{
+                        binding.layout1.btStart.text = getString(R.string.bt_start)
+                    }
+                }catch (e: Exception){
+                    binding.layout1.btStart.text = getString(R.string.bt_start)
+                    Log.e(TAG, "onCreate: ", e)
+                }
+            }
+
+            App.iKernel.value?.let { updateButtonText(it) }
+
             App.bindServiceState.collectLatest {
                 Log.d(TAG, "onCreate: App.connectState.collectLatest: $it")
                 if(it == BindServiceState.Connecting){
@@ -318,11 +328,7 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
                     binding.layout1.btStart.text = getString(R.string.bt_start_fail_retry)
                 }else if(it == BindServiceState.Success){
                     binding.layout1.btStart.isEnabled = true
-                    if (App.iKernel.value!!.isRunning) {
-                        binding.layout1.btStart.text = getString(R.string.bt_stop)
-                    }else{
-                        binding.layout1.btStart.text = getString(R.string.bt_start)
-                    }
+                    updateButtonText(App.iKernel.value)
                 }
             }
 
@@ -371,46 +377,7 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
                     binding.layout1.btStart.text = getString(R.string.bt_start)
 
                 }else{
-                    val inputPath = try{
-                        kernelInterface.inputPath
-                    }catch (e: Exception){
-                        Toast.makeText(this, "error: ${e.message}", Toast.LENGTH_SHORT).show()
-                        Log.e(TAG, "onCreate: kernelInterface.inputPath", e)
-                        return@setOnClickListener
-                    }
-                    Log.i(TAG, "onServiceConnected: $inputPath")
-                    if(inputPath != null){
-                        Log.i(TAG, "onServiceConnected: ${Arrays.toString(inputPath)}")
-                    }
-
-                    if(inputPath == null || inputPath.isEmpty()){
-                        Log.e(TAG, "onServiceConnected: inputPath == null.")
-                        Toast.makeText(this@MainActivity,
-                            getString(R.string.toast_no_input_device),
-                            Toast.LENGTH_SHORT).show()
-                        binding.layout1.btStart.text = getString(R.string.bt_device_not_support)
-                        return@setOnClickListener
-                    }
-
-                    val devName = getLastDevName()
-                    Log.d(TAG, "onCreate: devName = $devName")
-                    if(devName != null){
-                        inputPath.forEach{
-                            if(it.name == devName){
-                                it.weight += 100000
-                            }
-                        }
-                    }
-
-                    var path = inputPath[0].path
-                    var weight = inputPath[0].weight
-                    inputPath.forEach {
-                        if(it.weight > weight){
-                            weight = it.weight
-                            path = it.path
-                        }
-                    }
-                    if(! kernelInterface.start(path, colorList,
+                    if(! kernelInterface.start(getLastDevName() , App.colorList,
                             getTouchPointSize(), getTouchPathDisappearanceTime(),
                             getStrokeWidthCircle(), getStrokeWidthLine(), getAlpha())
                         ){

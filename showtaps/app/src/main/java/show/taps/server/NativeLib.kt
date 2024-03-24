@@ -21,7 +21,7 @@ object NativeLib {
 
     @JvmStatic
     @Synchronized
-    external fun start(dev: String): Boolean
+    external fun start(dev: String?): Boolean
 
     @JvmStatic
     @Synchronized
