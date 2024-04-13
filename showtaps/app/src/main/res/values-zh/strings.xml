@@ -10,8 +10,9 @@
 
     <string name="tv_title_color_picker">修改第%d个按下的手指颜色</string>
 
-    <string name="card_1_tip_download_shizuku">如果Shizuku似乎没有安装或激活，你需要成功安装并激活它，才可以进行下一步操作。</string>
-    <string name="card_1_download_shizuku">去 Google Play 下载 Shizuku</string>
+    <string name="card_1_tip_download_shizuku">需要安装并激活Shizuku，或者授予Root权限，才可以进行下一步操作。</string>
+    <string name="card_1_open_shizuku">打开 Shizuku</string>
+    <string name="card_1_root">使用Root启动</string>
     <string name="card_1_tip_start">Shizuku正在运行。在点击下方 [ 启动 ] 按钮后显示您触摸的位置。（首次使用需要向Shizuku请求权限）</string>
     <string name="card_3_info">本程序会使用到 /data/local/tmp/show.taps/ 目录, 请勿在这个目录存放文件或进行其他操作。\n由于此功能需要使用Android系统未公开的API，无法确保兼容所有的设备，如果出现触摸失灵等故障，请长按电源键重启之后卸载，或使用adb命令卸载本软件（adb uninstall show.taps）。\n目前已知HUAWEI、HONOR、多屏幕设备存在兼容性问题。\n这款App不会自动检查更新，下方是与我有关的链接，点击可跳转，长按可复制。</string>
     <string name="card_3_play_link_title">去 Play Store 详情页查看更新或评价</string>

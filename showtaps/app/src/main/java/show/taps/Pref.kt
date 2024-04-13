@@ -17,6 +17,8 @@ const val keyColorPrefix = "PREF_KEY_COLOR_"
 
 const val touchEventDevName = "TOUCH_EVENT_DEV_NAME"
 
+const val useRoot = "USE_ROOT"
+
 fun pref() = App.instance.getSharedPreferences("Settings", Context.MODE_PRIVATE)!!
 
 fun getTouchPointSize() = pref().getInt(keySize, 80)
@@ -34,6 +36,13 @@ fun getLastDevName(): String? = pref().getString(touchEventDevName, null)
 fun putLastDevName(value: String?) {
     pref().edit().putString(touchEventDevName, value).apply()
 }
+
+fun useRoot(): Boolean = pref().getBoolean(useRoot, false)
+
+fun useRoot(value: Boolean) {
+    pref().edit().putBoolean(useRoot, value).apply()
+}
+
 
 /** 长度必须是 [GlobalSettings.COLOR_ARRAY_LENGTH] */
 fun getColorList(): IntArray {

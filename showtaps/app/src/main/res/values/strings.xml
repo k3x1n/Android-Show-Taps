@@ -9,8 +9,9 @@
 
     <string name="tv_title_color_picker">Modify the color of the %dth finger pressed</string>
 
-    <string name="card_1_tip_download_shizuku">If Shizuku seems to be not installed or activated, you need to install and activate it successfully before proceeding to the next step.</string>
-    <string name="card_1_download_shizuku">Download Shizuku from Google Play</string>
+    <string name="card_1_tip_download_shizuku">Shizuku needs to be installed and activated, or Root permission needs to be granted before proceeding to the next step.</string>
+    <string name="card_1_open_shizuku">Open Shizuku</string>
+    <string name="card_1_root">Using Root</string>
     <string name="card_1_tip_start">Shizuku is running. After clicking the [Start] button below, it will display the location you touch. (Permission needs to be requested from Shizuku for the first time use)</string>
     <string name="card_3_info">This program will use the /data/local/tmp/show.taps/ directory. Please do not store files or perform other operations in this directory.\nSince this function requires the use of Android\'s unpublished APIs, compatibility with all devices cannot be guaranteed. If touch failure or other malfunctions occur, please restart by long-pressing the power button and uninstall the software, or uninstall the software using the adb command (adb uninstall show.taps).\nCurrently, there are known compatibility issues with HUAWEI, HONOR, and multi-screen devices.\nThis app does not automatically check for updates. Below are links related to me. Click to jump, long press to copy.</string>
     <string name="card_3_play_link_title">Go to Play Store for details, updates, or reviews</string>

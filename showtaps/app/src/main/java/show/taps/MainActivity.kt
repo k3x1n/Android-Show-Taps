@@ -1,5 +1,6 @@
 package show.taps
 
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.ColorDrawable
@@ -222,13 +223,9 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
         binding.layout1.loop(pingBinder)
     }
 
-    /** 避免onCreate之后 重复展示对话框 */
-    private var showShizukuDialog = false
-
     /** 如果 版本过低, 则弹出 dialog */
     private fun checkShizukuVersion(): Boolean{
-        if (!showShizukuDialog && Shizuku.isPreV11()) {
-            showShizukuDialog = true
+        if (Shizuku.isPreV11()) {
             // Pre-v11 is unsupported
             MaterialAlertDialogBuilder(this@MainActivity)
                 .setMessage(getString(R.string.shizuku_version_low))
@@ -264,26 +261,39 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
             .show()
     }
 
+    private var stopLoop = false
+
     /**
      * 在Shizuku运行状态变化(pingBinder的返回值变化)、
      * 自身App授权可能发生变化(例如切换到Shizuku界面然后又切换回来调用了onResume)时调用。
      */
     private fun ActivityMainCard1Binding.loop(pingBinder: Boolean){
+        if(stopLoop){
+            return
+        }
         if (pingBinder) {
             tvStep1.visibility = View.GONE
             btStep1.visibility = View.GONE
+            btStep1Su.visibility = View.GONE
             tvStartTip.visibility = View.VISIBLE
             btStart.visibility = View.VISIBLE
-            if(checkShizukuVersion() && App.iKernel.value?.asBinder()?.isBinderAlive != true){
-                if(Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED){
-                    App.connectServer()
-                }else{
-                    binding.layout1.btStart.text = getString(R.string.bt_request_shizuku_permission)
+            if(checkShizukuVersion()){
+                if(App.iKernel.value?.asBinder()?.isBinderAlive != true){
+                    if(Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED){
+                        App.connectServer()
+                    }else{
+                        binding.layout1.btStart.text = getString(R.string.bt_request_shizuku_permission)
+                    }
                 }
+            }else{
+                stopLoop = true
             }
+
         } else {
             tvStep1.visibility = View.VISIBLE
             btStep1.visibility = View.VISIBLE
+            btStep1Su.visibility = View.VISIBLE
+
             tvStartTip.visibility = View.GONE
             btStart.visibility = View.GONE
         }
@@ -294,7 +304,6 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        showShizukuDialog = false
 
         binding.initPrefPanel()
 
@@ -359,7 +368,25 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
         Shizuku.addRequestPermissionResultListener(this)
 
         binding.layout1.btStep1.setOnClickListener {
-            openGooglePlayStore(PKG_SHIZUKU)
+            val intent = Intent(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_LAUNCHER)
+                .setPackage(PKG_SHIZUKU)
+            val list = packageManager.queryIntentActivities(intent, 0)
+            if(list.isEmpty()){
+                openGooglePlayStore(PKG_SHIZUKU)
+            }else{
+                val activityName = list[0].activityInfo.name
+                Log.d(TAG, "onCreate: targetActivity = $activityName")
+                val componentName = ComponentName.createRelative(PKG_SHIZUKU, activityName)
+                startActivity(Intent()
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    .setComponent(componentName))
+            }
+        }
+
+        binding.layout1.btStep1Su.setOnClickListener {
+            // todo
+
         }
 
         binding.layout1.btStart.setOnClickListener {

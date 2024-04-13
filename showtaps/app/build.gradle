@@ -80,6 +80,10 @@ dependencies {
     implementation "dev.rikka.shizuku:api:$shizuku_version"
     implementation "dev.rikka.shizuku:provider:$shizuku_version"
 
+    def libsuVersion = "5.2.2"
+    implementation "com.github.topjohnwu.libsu:core:$libsuVersion"
+    implementation "com.github.topjohnwu.libsu:service:$libsuVersion"
+
     implementation 'com.github.skydoves:colorpickerview:2.3.0'
 
 }
