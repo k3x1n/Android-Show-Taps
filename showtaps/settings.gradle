@@ -17,4 +17,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "show taps"
 include ':app'
-include ':nativelib'
