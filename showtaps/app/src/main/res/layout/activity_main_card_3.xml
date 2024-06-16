@@ -13,6 +13,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/bt_change_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="12dp"
+            android:textSize="15sp"
+            android:lineSpacingExtra="3dp"
+            tools:text="@string/tip_change_mode"
+            android:textColor="?colorPrimary"
+            android:background="?android:selectableItemBackground"
+            tools:ignore="HardcodedText" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,25 +50,13 @@
             />
 
         <TextView
-            android:id="@+id/link_tube"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="12dp"
-            android:textSize="15sp"
-            android:lineSpacingExtra="3dp"
-            android:text="Youtube @k3x1n-dev"
-            android:textColor="?colorPrimary"
-            android:background="?android:selectableItemBackground"
-            tools:ignore="HardcodedText" />
-
-        <TextView
             android:id="@+id/link_github"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingVertical="12dp"
             android:textSize="15sp"
             android:lineSpacingExtra="3dp"
-            android:text="Github https://github.com/k3x1n/Android-Show-Taps"
+            android:text="View code or issues: https://github.com/k3x1n/Android-Show-Taps"
             android:textColor="?colorPrimary"
             android:background="?android:selectableItemBackground"
             tools:ignore="HardcodedText" />

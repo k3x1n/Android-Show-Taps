@@ -8,15 +8,23 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.*
+import androidx.annotation.MainThread
 
 @SuppressLint("StaticFieldLeak")
 object FloatManager {
 
     lateinit var view: View
 
-    @SuppressLint("WrongConstant")
-    fun init(context: Context, view: View){
-        FloatManager.view = view
+    @Volatile
+    var initialized = false
+
+    @MainThread
+    fun init(context: Context, modeType: Int){
+        if(initialized){
+            return
+        }
+
+        view = MainView(context)
 
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
@@ -35,7 +43,7 @@ object FloatManager {
                 fitInsetsTypes = 0
             }
             flags = defaultFlags
-            type = TYPE_STATUS_BAR_ADDITIONAL
+            type = modeType
             gravity = Gravity.TOP or Gravity.START
             format = PixelFormat.RGBA_8888
             width = MATCH_PARENT
@@ -45,6 +53,7 @@ object FloatManager {
         }
 
         wm.addView(view, lp)
+        initialized = true
 
     }
 

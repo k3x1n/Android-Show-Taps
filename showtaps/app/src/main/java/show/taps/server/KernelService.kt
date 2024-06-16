@@ -11,14 +11,14 @@ import android.util.Log
 import show.taps.BuildConfig
 import show.taps.DevInfo
 import show.taps.KernelInterface
-import show.taps.MainView
 import java.io.File
+import java.lang.RuntimeException
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 private const val TAG = "KernelService"
 
-class KernelService(context: Context) : KernelInterface.Stub() {
+class KernelService(private val context: Context) : KernelInterface.Stub() {
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -80,6 +80,10 @@ class KernelService(context: Context) : KernelInterface.Stub() {
     }
 
     init{
+        /*if(Process.myUid() == Process.ROOT_UID){
+            Process.setUid(Process.SHELL_UID)
+        }*/
+
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             try{
                 Log.e(TAG, "exception: ", e)
@@ -118,8 +122,6 @@ class KernelService(context: Context) : KernelInterface.Stub() {
         fixVivo()
         fixLge()
 
-        FloatManager.init(context, MainView(context))
-
         thread(name = "avoid_forgetting_exit"){
             while(true){
                 SystemClock.sleep(5000)
@@ -150,7 +152,7 @@ class KernelService(context: Context) : KernelInterface.Stub() {
 
     @Synchronized
     override fun start(dev: String?, colorArray: IntArray, touchPointSize: Int, dismissTime: Int,
-                       circleStroke: Int, lineStroke: Int, colorAplha: Int): Boolean {
+                       circleStroke: Int, lineStroke: Int, colorAplha: Int, mode: Int): Boolean {
         val inputPath = getInputPath()
         if(inputPath.isEmpty()) {
             Log.e(TAG, "start: inputPath isEmpty.")
@@ -179,11 +181,13 @@ class KernelService(context: Context) : KernelInterface.Stub() {
         GlobalSettings.pathFadeTime = dismissTime
         GlobalSettings.strokeCircle = circleStroke
         GlobalSettings.strokeLine = lineStroke
-        handler.post{
-            FloatManager.view.alpha = colorAplha / 100f
-        }
         if(NativeLib.start(path)){
+            handler.post {
+                FloatManager.init(context, mode)
+                FloatManager.view.alpha = colorAplha / 100f
+            }
             isRunning = true
+            handler.postDelayed(stopRunnable, GlobalSettings.WAIT_CONTINUE_TIME)
             return true
         }
         return false
@@ -194,11 +198,25 @@ class KernelService(context: Context) : KernelInterface.Stub() {
         return isRunning
     }
 
+    private val stopRunnable = Runnable {
+        throw RuntimeException("not continue.")
+    }
+
+    override fun continueUse() {
+        handler.removeCallbacks(stopRunnable)
+    }
+
     @Synchronized
     override fun stop() {
         lastActive = SystemClock.uptimeMillis()
         NativeLib.stop()
         isRunning = false
+    }
+
+    override fun exit() {
+        handler.post {
+            throw RuntimeException("exit!")
+        }
     }
 
     override fun updateInfo(touchPointSize: Int, dismissTime: Int,
@@ -208,8 +226,10 @@ class KernelService(context: Context) : KernelInterface.Stub() {
         GlobalSettings.pathFadeTime = dismissTime
         GlobalSettings.strokeCircle = circleStroke
         GlobalSettings.strokeLine = lineStroke
-        handler.post{
-            FloatManager.view.alpha = colorAplha / 100f
+        if(FloatManager.initialized){
+            handler.post{
+                FloatManager.view.alpha = colorAplha / 100f
+            }
         }
     }
 

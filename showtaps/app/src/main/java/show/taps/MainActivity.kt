@@ -1,14 +1,17 @@
 package show.taps
 
 import android.content.ComponentName
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -23,6 +26,7 @@ import show.taps.databinding.ActivityMainBinding
 import show.taps.databinding.ActivityMainCard1Binding
 import show.taps.databinding.ViewColorItemBinding
 import show.taps.server.GlobalSettings
+import show.taps.server.ViewModeType
 import kotlin.system.exitProcess
 
 private const val TAG = "MainActivity"
@@ -40,24 +44,11 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
 
     private fun ActivityMainBinding.initPrefPanel(){
 
-        fun setTouchPointSize(i : Int) = pref().edit().putInt(keySize, i).apply()
-
-        fun setTouchPathDisappearanceTime(i : Int) = pref().edit().putInt(keyTime, i).apply()
-
-        fun setStrokeCircle(i : Int) = pref().edit().putInt(keyStrokeCircle, i).apply()
-
-        fun setStrokeLine(i : Int) = pref().edit().putInt(keyStrokeLine, i).apply()
-
-        fun setAlpha(i : Int) = pref().edit().putInt(keyAlpha, i).apply()
-
         fun updateRemoteInfo(){
             try{
-                val kernelInterface = App.iKernel.value
-                if(kernelInterface?.asBinder()?.isBinderAlive == true){
-                    kernelInterface.updateInfo(
-                        getTouchPointSize(), getTouchPathDisappearanceTime(),
-                        getStrokeWidthCircle(), getStrokeWidthLine(), getAlpha())
-                }
+                App.iKernel.value?.updateInfo(
+                    getTouchPointSize(), getTouchPathDisappearanceTime(),
+                    getStrokeWidthCircle(), getStrokeWidthLine(), getAlpha())
             }catch (e: Exception){
                 Log.e(TAG, "onStopTrackingTouch: ", e)
             }
@@ -130,7 +121,7 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         val devName = ev?.device?.name
-        putLastDevName(devName)
+        setLastDevName(devName)
         return super.dispatchTouchEvent(ev)
     }
 
@@ -140,16 +131,6 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
         }
         layout3.linkPlay.setOnLongClickListener {
             copy("https://play.google.com/store/apps/details?id=${packageName}")
-            Toast.makeText(this@MainActivity,
-                getString(R.string.toast_link_copied), Toast.LENGTH_SHORT).show()
-            true
-        }
-
-        layout3.linkTube.setOnClickListener {
-            openWebBrowser("https://www.youtube.com/@k3x1n-dev")
-        }
-        layout3.linkTube.setOnLongClickListener {
-            copy("https://www.youtube.com/@k3x1n-dev")
             Toast.makeText(this@MainActivity,
                 getString(R.string.toast_link_copied), Toast.LENGTH_SHORT).show()
             true
@@ -271,10 +252,10 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
         if(stopLoop){
             return
         }
+
         if (pingBinder) {
             tvStep1.visibility = View.GONE
             btStep1.visibility = View.GONE
-            btStep1Su.visibility = View.GONE
             tvStartTip.visibility = View.VISIBLE
             btStart.visibility = View.VISIBLE
             if(checkShizukuVersion()){
@@ -292,15 +273,26 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
         } else {
             tvStep1.visibility = View.VISIBLE
             btStep1.visibility = View.VISIBLE
-            btStep1Su.visibility = View.VISIBLE
-
             tvStartTip.visibility = View.GONE
             btStart.visibility = View.GONE
         }
     }
 
+    private var mSafeDialog : AlertDialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if(Build.MANUFACTURER.uppercase() == "HUAWEI"
+                || Build.MANUFACTURER.uppercase() == "HONOR"){
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Tip")
+                .setMessage(getString(R.string.tip_huawei_compat))
+                .setPositiveButton("OK"){dialog, _->
+                    dialog.cancel()
+                }
+                .show()
+        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -308,6 +300,29 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
         binding.initPrefPanel()
 
         binding.initLink()
+
+        if(getViewType() == ViewModeType.MODE_2039){
+            binding.layout3.btChangeMode.text = getString(
+                R.string.tip_change_mode, "2041")
+        }else{
+            binding.layout3.btChangeMode.text = getString(
+                R.string.tip_change_mode, "2039")
+        }
+
+        binding.layout3.btChangeMode.setOnClickListener {
+            if(getViewType() == ViewModeType.MODE_2039){
+                setViewType(ViewModeType.MODE_2041)
+                binding.layout3.btChangeMode.text = getString(R.string.tip_change_mode, "2039")
+            }else{
+                setViewType(ViewModeType.MODE_2039)
+                binding.layout3.btChangeMode.text = getString(R.string.tip_change_mode, "2041")
+            }
+            try{
+                App.iKernel.value?.exit()
+            }catch (e: Exception){
+                Log.e(TAG, "onCreate: ", e)
+            }
+        }
 
         binding.initColor()
 
@@ -335,6 +350,12 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
                 }else if(it == BindServiceState.Fail){
                     binding.layout1.btStart.isEnabled = true
                     binding.layout1.btStart.text = getString(R.string.bt_start_fail_retry)
+                    mSafeDialog?.let{dialog->
+                        dialog.getButton(DialogInterface.BUTTON_NEUTRAL)?.visibility = View.VISIBLE
+                        dialog.getButton(DialogInterface.BUTTON_POSITIVE)?.setOnClickListener {
+                            dialog.cancel()
+                        }
+                    }
                 }else if(it == BindServiceState.Success){
                     binding.layout1.btStart.isEnabled = true
                     updateButtonText(App.iKernel.value)
@@ -384,11 +405,6 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
             }
         }
 
-        binding.layout1.btStep1Su.setOnClickListener {
-            // todo
-
-        }
-
         binding.layout1.btStart.setOnClickListener {
             if(!Shizuku.pingBinder()){
                 Toast.makeText(this, getString(R.string.toast_check_shizuku_launch),
@@ -404,14 +420,42 @@ class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListe
                     binding.layout1.btStart.text = getString(R.string.bt_start)
 
                 }else{
-                    if(! kernelInterface.start(getLastDevName() , App.colorList,
+                    val success = try{
+                        kernelInterface.start(getLastDevName() , App.colorList,
                             getTouchPointSize(), getTouchPathDisappearanceTime(),
-                            getStrokeWidthCircle(), getStrokeWidthLine(), getAlpha())
-                        ){
+                            getStrokeWidthCircle(), getStrokeWidthLine(), getAlpha(),
+                            ViewModeType.MODE_2039)
+                    }catch (e: Exception){
+                        Log.e(TAG, "onCreate: ", e)
+                        false
+                    }
+                    if(!success){
                         Toast.makeText(this@MainActivity,
                             getString(R.string.toast_launch_fail),
                             Toast.LENGTH_SHORT).show()
                     }else{
+                        mSafeDialog?.cancel()
+                        val safeDialog = MaterialAlertDialogBuilder(this)
+                            .setMessage(R.string.tip_continue)
+                            .setCancelable(false)
+                            .setPositiveButton(getString(R.string._continue)){ dialog, _->
+                                try{
+                                    kernelInterface.continueUse()
+                                }catch (e: Exception){
+                                    Log.e(TAG, "onCreate: ", e)
+                                }
+                                dialog.cancel()
+                            }
+                            .setNeutralButton(R.string.tip_continue_switch_mode){dialog, _->
+                                binding.layout3.btChangeMode.callOnClick()
+                                Toast.makeText(this@MainActivity, getString(
+                                    R.string.tip_change_complete), Toast.LENGTH_SHORT).show()
+                                dialog.cancel()
+                            }
+                            .show()
+                        safeDialog.getButton(DialogInterface.BUTTON_NEUTRAL).visibility = View.INVISIBLE
+                        mSafeDialog = safeDialog
+
                         binding.layout1.btStart.text = getString(R.string.bt_stop)
                     }
                     App.stateChangeFlow.tryEmit(0)

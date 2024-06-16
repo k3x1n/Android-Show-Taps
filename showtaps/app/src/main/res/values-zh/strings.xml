@@ -10,18 +10,17 @@
 
     <string name="tv_title_color_picker">修改第%d个按下的手指颜色</string>
 
-    <string name="card_1_tip_download_shizuku">需要安装并激活Shizuku，或者授予Root权限，才可以进行下一步操作。</string>
+    <string name="card_1_tip_download_shizuku">如果Shizuku似乎没有安装或激活，你需要成功安装并激活它，才可以进行下一步操作。</string>
     <string name="card_1_open_shizuku">打开 Shizuku</string>
-    <string name="card_1_root">使用Root启动</string>
     <string name="card_1_tip_start">Shizuku正在运行。在点击下方 [ 启动 ] 按钮后显示您触摸的位置。（首次使用需要向Shizuku请求权限）</string>
-    <string name="card_3_info">本程序会使用到 /data/local/tmp/show.taps/ 目录, 请勿在这个目录存放文件或进行其他操作。\n由于此功能需要使用Android系统未公开的API，无法确保兼容所有的设备，如果出现触摸失灵等故障，请长按电源键重启之后卸载，或使用adb命令卸载本软件（adb uninstall show.taps）。\n目前已知HUAWEI、HONOR、多屏幕设备存在兼容性问题。\n这款App不会自动检查更新，下方是与我有关的链接，点击可跳转，长按可复制。</string>
+    <string name="card_3_info">本程序会使用到 /data/local/tmp/show.taps/ 目录, 请勿在这个目录存放文件或进行其他操作。</string>
     <string name="card_3_play_link_title">去 Play Store 详情页查看更新或评价</string>
     <string name="toast_link_copied">链接已复制~</string>
     <string name="toast_check_shizuku_launch">请检查Shizuku是否已经启动~</string>
     <string name="toast_no_input_device">获取输入设备失败.</string>
     <string name="bt_request_shizuku_permission">请求Shizuku权限</string>
     <string name="bt_start">启动</string>
-    <string name="bt_start_fail_retry">服务启动失败, 点此重试</string>
+    <string name="bt_start_fail_retry">(进程已退出.)再次启动</string>
     <string name="bt_device_not_support">暂不兼容当前设备</string>
     <string name="bt_stop">停止</string>
     <string name="bt_start_service">正在启动服务</string>
@@ -29,5 +28,11 @@
     <string name="shizuku_version_low">你当前安装的Shizuku版本过低, 请下载新版本！</string>
     <string name="open_shizuku_grant">请打开Shizuku, 在授权列表勾选本App！\n如果在Shizuku的授权列表未找到本App，请从最近任务关闭Shizuku后重新打开。</string>
     <string name="toast_launch_fail">启动失败.</string>
+    <string name="tip_change_mode">点击此处切换为%1$s模式</string>
+    <string name="tip_huawei_compat">华为(包括荣耀)设备可能存在兼容性问题(因为据说他们使用的触控协议是A协议), \n项目作者(github.com/k3x1n)由于没有华为设备, 无法进行适配.</string>
+    <string name="tip_continue">为了避免设备兼容性问题导致的\"冻结\"屏幕, 请点击下方[继续]按钮, 否则即将自动停止Show Taps.\n如果您发现屏幕被冻结而无法点击[继续]按钮, 可尝试点击[切换模式], 然后再次点击[启动].</string>
+    <string name="tip_continue_switch_mode">切换模式</string>
+    <string name="_continue">继续</string>
+    <string name="tip_change_complete">切换完成, 请再次尝试[启动]</string>
 
 </resources>

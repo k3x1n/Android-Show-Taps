@@ -13,8 +13,8 @@ android {
         applicationId "show.taps"
         minSdk 29
         targetSdk 34
-        versionCode 7
-        versionName "3.2"
+        versionCode 8
+        versionName "5.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -37,7 +37,8 @@ android {
 
         }
         debug {
-            minifyEnabled false
+            minifyEnabled true
+            debuggable false
             applicationIdSuffix ".test"
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -79,10 +80,6 @@ dependencies {
     def shizuku_version = "13.1.5"
     implementation "dev.rikka.shizuku:api:$shizuku_version"
     implementation "dev.rikka.shizuku:provider:$shizuku_version"
-
-    def libsuVersion = "5.2.2"
-    implementation "com.github.topjohnwu.libsu:core:$libsuVersion"
-    implementation "com.github.topjohnwu.libsu:service:$libsuVersion"
 
     implementation 'com.github.skydoves:colorpickerview:2.3.0'
 

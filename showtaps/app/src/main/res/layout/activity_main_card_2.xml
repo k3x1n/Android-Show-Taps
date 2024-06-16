@@ -25,7 +25,10 @@
             android:layout_height="wrap_content"
             android:paddingVertical="10dp"
             android:max="150"
-            android:progress="0"
+
+            android:thumb="@drawable/seekbar_thumb"
+            android:progressDrawable="@drawable/seekbar_custom_style"
+            android:splitTrack="false"
             />
         <TextView
             android:id="@+id/tv_touch_disappearance_time"
@@ -42,6 +45,11 @@
             android:paddingVertical="10dp"
             android:max="1000"
             android:progress="0"
+
+            tools:progress="400"
+            android:thumb="@drawable/seekbar_thumb"
+            android:progressDrawable="@drawable/seekbar_custom_style"
+            android:splitTrack="false"
             />
 
         <TextView
@@ -59,6 +67,10 @@
             android:paddingVertical="10dp"
             android:max="30"
             android:progress="0"
+
+            android:thumb="@drawable/seekbar_thumb"
+            android:progressDrawable="@drawable/seekbar_custom_style"
+            android:splitTrack="false"
             />
 
         <TextView
@@ -76,6 +88,10 @@
             android:paddingVertical="10dp"
             android:max="30"
             android:progress="0"
+
+            android:thumb="@drawable/seekbar_thumb"
+            android:progressDrawable="@drawable/seekbar_custom_style"
+            android:splitTrack="false"
             />
 
 
@@ -95,6 +111,10 @@
             android:max="100"
             android:min="30"
             android:progress="30"
+
+            android:thumb="@drawable/seekbar_thumb"
+            android:progressDrawable="@drawable/seekbar_custom_style"
+            android:splitTrack="false"
             />
 
         <HorizontalScrollView

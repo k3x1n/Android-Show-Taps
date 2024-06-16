@@ -4,7 +4,6 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.Keep
 import show.taps.DevInfo
-import show.taps.MainView
 
 private const val TAG = "NativeLib"
 
@@ -66,7 +65,9 @@ object NativeLib {
     @Keep
     @JvmStatic
     fun c(){
-        FloatManager.view.postInvalidate()
+        if(FloatManager.initialized){
+            FloatManager.view.postInvalidate()
+        }
     }
 
 }

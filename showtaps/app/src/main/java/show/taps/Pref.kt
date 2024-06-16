@@ -2,6 +2,7 @@ package show.taps
 
 import android.content.Context
 import show.taps.server.GlobalSettings
+import show.taps.server.ViewModeType
 
 const val keySize = "PREF_KEY_TOUCH_POINT_SIZE"
 
@@ -17,9 +18,17 @@ const val keyColorPrefix = "PREF_KEY_COLOR_"
 
 const val touchEventDevName = "TOUCH_EVENT_DEV_NAME"
 
-const val useRoot = "USE_ROOT"
+const val keyViewType = "PREF_KEY_VIEW_TYPE"
+
+
+/* ------------------------------------------------------------------------------- */
+
 
 fun pref() = App.instance.getSharedPreferences("Settings", Context.MODE_PRIVATE)!!
+
+
+/* ------------------------------------------------------------------------------- */
+
 
 fun getTouchPointSize() = pref().getInt(keySize, 80)
 
@@ -33,15 +42,28 @@ fun getAlpha() = pref().getInt(keyAlpha, 100)
 
 fun getLastDevName(): String? = pref().getString(touchEventDevName, null)
 
-fun putLastDevName(value: String?) {
+fun getViewType() = pref().getInt(keyViewType, ViewModeType.MODE_2041)
+
+
+/* ------------------------------------------------------------------------------- */
+
+fun setTouchPointSize(i : Int) = pref().edit().putInt(keySize, i).apply()
+
+fun setTouchPathDisappearanceTime(i : Int) = pref().edit().putInt(keyTime, i).apply()
+
+fun setStrokeCircle(i : Int) = pref().edit().putInt(keyStrokeCircle, i).apply()
+
+fun setStrokeLine(i : Int) = pref().edit().putInt(keyStrokeLine, i).apply()
+
+fun setAlpha(i : Int) = pref().edit().putInt(keyAlpha, i).apply()
+
+fun setViewType(i : Int) = pref().edit().putInt(keyViewType, i).apply()
+
+fun setLastDevName(value: String?) {
     pref().edit().putString(touchEventDevName, value).apply()
 }
 
-fun useRoot(): Boolean = pref().getBoolean(useRoot, false)
-
-fun useRoot(value: Boolean) {
-    pref().edit().putBoolean(useRoot, value).apply()
-}
+/* ------------------------------------------------------------------------------- */
 
 
 /** 长度必须是 [GlobalSettings.COLOR_ARRAY_LENGTH] */

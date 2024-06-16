@@ -9,25 +9,30 @@
 
     <string name="tv_title_color_picker">Modify the color of the %dth finger pressed</string>
 
-    <string name="card_1_tip_download_shizuku">Shizuku needs to be installed and activated, or Root permission needs to be granted before proceeding to the next step.</string>
+    <string name="card_1_tip_download_shizuku">If Shizuku seems to be not installed or activated, you need to install and activate it successfully before proceeding to the next step.</string>
     <string name="card_1_open_shizuku">Open Shizuku</string>
-    <string name="card_1_root">Using Root</string>
     <string name="card_1_tip_start">Shizuku is running. After clicking the [Start] button below, it will display the location you touch. (Permission needs to be requested from Shizuku for the first time use)</string>
-    <string name="card_3_info">This program will use the /data/local/tmp/show.taps/ directory. Please do not store files or perform other operations in this directory.\nSince this function requires the use of Android\'s unpublished APIs, compatibility with all devices cannot be guaranteed. If touch failure or other malfunctions occur, please restart by long-pressing the power button and uninstall the software, or uninstall the software using the adb command (adb uninstall show.taps).\nCurrently, there are known compatibility issues with HUAWEI, HONOR, and multi-screen devices.\nThis app does not automatically check for updates. Below are links related to me. Click to jump, long press to copy.</string>
+    <string name="card_3_info">This program will use the /data/local/tmp/show.taps/ directory. Please do not store files or perform other operations in this directory.</string>
     <string name="card_3_play_link_title">Go to Play Store for details, updates, or reviews</string>
     <string name="toast_link_copied">Link copied~</string>
     <string name="toast_check_shizuku_launch">Please check if Shizuku has been launched~</string>
     <string name="toast_no_input_device">Failed to get input device.</string>
     <string name="bt_request_shizuku_permission">Request Shizuku permission</string>
     <string name="bt_start">Start</string>
-    <string name="bt_start_fail_retry">Service start failed, click here to retry</string>
+    <string name="bt_start_fail_retry">(Process exited.) Start again</string>
     <string name="bt_device_not_support">Not compatible with the current device</string>
     <string name="bt_stop">Stop</string>
     <string name="bt_start_service">Starting service</string>
     <string name="bt_retry_connect_server">Service connection failed, click here to retry</string>
-    <string name="version_limit">The current version is only available for users in mainland China. Please download from Google Play!</string>
     <string name="shizuku_version_low">The Shizuku version you currently have installed is too low, please download the new version!</string>
     <string name="open_shizuku_grant">Please open Shizuku and check this app in the authorization list!\nIf you can\'t find this app in Shizuku\'s authorization list, please close Shizuku from recent tasks and reopen it.</string>
     <string name="toast_launch_fail">Failed to launch.</string>
+    <string name="tip_change_mode">Click here to switch %1$s mode.</string>
+    <string name="tip_huawei_compat">Huawei (including Honor) devices may encounter compatibility issues (as it is said that they use the A protocol for touch control). \nThe project author (github.com/k3x1n) is unable to adapt due to the lack of Huawei devices.</string>
+    <string name="tip_continue">To avoid screen freezing caused by compatibility issues, please click [Continue] within 5 seconds. Otherwise, Show Taps will automatically stop.\nIf you find that the screen is frozen and you cannot click the [Continue] button, try clicking the [Switch Mode] button, and then click [Start] again.</string>
+    <!-- 5s: tip_continue: GlobalSettings.WAIT_CONTINUE_TIME -->
+    <string name="tip_continue_switch_mode">Switch Mode</string>
+    <string name="_continue">Continue</string>
+    <string name="tip_change_complete">Switch completed, please try [Start] again.</string>
 
 </resources>

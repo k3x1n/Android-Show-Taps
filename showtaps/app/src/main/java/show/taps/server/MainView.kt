@@ -1,4 +1,4 @@
-package show.taps
+package show.taps.server
 
 import android.content.Context
 import android.content.res.Configuration
@@ -8,19 +8,16 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.Display
 import android.view.MotionEvent
-import android.view.Surface.ROTATION_0
-import android.view.Surface.ROTATION_180
-import android.view.Surface.ROTATION_270
-import android.view.Surface.ROTATION_90
-import android.view.Surface.Rotation
+import android.view.Surface
 import android.view.View
 import androidx.core.hardware.display.DisplayManagerCompat
-import show.taps.server.GlobalSettings
 import java.lang.RuntimeException
 
-private const val TAG = "MainView"
-
 class MainView(context: Context) : View(context){
+    
+    companion object{
+        private const val TAG = "MainView"
+    }
 
     // 用于画点
     data class Point(var pointerId: Int, var time: Long, var x: Float, var y: Float, var deviceId: Int)
@@ -40,7 +37,7 @@ class MainView(context: Context) : View(context){
 
     /*private */val list = Array(2048) { Point(0, 0L, -9999f, -9999f, 0) }
     /*private */val listPressedPoint = Array(10) { PressedPoint(false, -9999f, -9999f, 0, 0f, 0) } // pointerID : index
-    /*private */val lastPoint = Array(10) { LastPoint(false, 0f, 0f) } // pointerID : index
+    private val lastPoint = Array(10) { LastPoint(false, 0f, 0f) } // pointerID : index
 
     @Volatile
     var i = 0
@@ -85,8 +82,8 @@ class MainView(context: Context) : View(context){
 
     }
 
-    @Rotation
-    var orientation = ROTATION_0
+    @Surface.Rotation
+    var orientation = Surface.ROTATION_0
 
     private var posRes = FloatArray(2)
 
@@ -106,7 +103,8 @@ class MainView(context: Context) : View(context){
         super.dispatchConfigurationChanged(newConfig)
         Log.d(TAG, "dispatchConfigurationChanged() called with: newConfig = $newConfig")
         if(newConfig != null){
-            val display = DisplayManagerCompat.getInstance(context).getDisplay(Display.DEFAULT_DISPLAY)
+            val display = DisplayManagerCompat.getInstance(context)
+                .getDisplay(Display.DEFAULT_DISPLAY)
             if(display == null){
                 Log.e(TAG, "dispatchConfigurationChanged: display == null.")
                 return
@@ -118,15 +116,15 @@ class MainView(context: Context) : View(context){
 
     private fun calculate(x: Float, y: Float) {
         when(orientation){
-            ROTATION_90 -> {
+            Surface.ROTATION_90 -> {
                 posRes[0] = y * measuredWidth
                 posRes[1] = (1 - x) * measuredHeight
             }
-            ROTATION_180 -> {
+            Surface.ROTATION_180 -> {
                 posRes[0] = (1 - x) * measuredWidth
                 posRes[1] = (1 - y) * measuredHeight
             }
-            ROTATION_270 -> {
+            Surface.ROTATION_270 -> {
                 posRes[0] = (1 - y) * measuredWidth
                 posRes[1] = x * measuredHeight
             }
